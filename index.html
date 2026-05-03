@@ -2,12 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="robots" content="noindex,nofollow" />
 <title>つぐみと学校のおばけ</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; color: #eee; font-family: "Yu Gothic", "Meiryo", sans-serif; }
+  html, body { width: 100%; height: 100%; height: 100dvh; overflow: hidden; background: #000; color: #eee; font-family: "Yu Gothic", "Meiryo", sans-serif; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: none; overscroll-behavior: none; }
   #game { position: fixed; inset: 0; }
   canvas { display: block; }
 
@@ -27,6 +27,43 @@
   #damage-flash { position: absolute; inset: 0; background: radial-gradient(circle, transparent 40%, rgba(180,0,0,0.6) 100%); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
   #damage-flash.show { opacity: 1; }
   #vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 200px 60px rgba(0,0,0,0.85); }
+
+  /* ===== Mobile Controls ===== */
+  #mobile-controls { display: none; }
+  body.is-touch #mobile-controls { display: block; }
+  body.is-touch #crosshair { width: 8px; height: 8px; }
+
+  /* スワイプ視点エリア (右半分) — ボタンより下のレイヤ */
+  #look-area { position: absolute; top: 0; right: 0; width: 50%; height: 100%; pointer-events: auto; touch-action: none; z-index: 1; }
+
+  /* 仮想スティック (左下) */
+  #stick-base { position: absolute; left: 24px; bottom: 24px; width: 140px; height: 140px; border-radius: 50%; background: rgba(0,0,0,0.35); border: 2px solid rgba(255,255,255,0.3); pointer-events: auto; touch-action: none; z-index: 2; }
+  #stick-knob { position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.5); transform: translate(-50%,-50%); pointer-events: none; }
+
+  /* アクションボタン共通 */
+  .mbtn { position: absolute; pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; background: rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.3); color: #eee; font-size: 14px; letter-spacing: 1px; display: flex; justify-content: center; align-items: center; z-index: 2; }
+  .mbtn:active, .mbtn.pressed { background: rgba(180,40,40,0.6); border-color: rgba(255,200,200,0.6); }
+
+  /* 右下: 射撃 */
+  #btn-fire { right: 28px; bottom: 90px; width: 96px; height: 96px; border-radius: 50%; font-size: 16px; font-weight: bold; }
+
+  /* 右下中段: ジャンプ・ダッシュ・E */
+  #btn-jump { right: 140px; bottom: 110px; width: 64px; height: 64px; border-radius: 50%; }
+  #btn-run  { right: 140px; bottom: 36px;  width: 64px; height: 64px; border-radius: 50%; }
+  #btn-act  { right: 28px;  bottom: 14px;  width: 64px; height: 64px; border-radius: 50%; }
+
+  /* 武器切替 (画面上部中央) */
+  #weapon-switch { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); display: flex; gap: 8px; z-index: 2; pointer-events: none; }
+  body.is-touch #weapon-switch { pointer-events: auto; }
+  .wbtn { pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.3); color: #ddd; padding: 6px 14px; border-radius: 4px; font-size: 13px; }
+  .wbtn.active { background: rgba(180,40,40,0.6); border-color: rgba(255,200,200,0.6); color: #fff; }
+
+  /* PC では武器切替バーを隠す */
+  body:not(.is-touch) #weapon-switch { display: none; }
+
+  /* タイトル操作説明の出し分け */
+  body.is-touch .ctrl-pc { display: none; }
+  body.is-touch .ctrl-touch { display: inline !important; }
 
   /* ===== Screens ===== */
   .screen { position: fixed; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.92); z-index: 10; text-align: center; padding: 20px; }
@@ -53,6 +90,20 @@
     <div id="stamina-wrap" class="panel"><div id="stamina"></div></div>
     <div id="effects"></div>
     <div id="message"></div>
+
+    <div id="mobile-controls">
+      <div id="look-area"></div>
+      <div id="stick-base"><div id="stick-knob"></div></div>
+      <button id="btn-fire" class="mbtn" type="button">FIRE</button>
+      <button id="btn-jump" class="mbtn" type="button">JUMP</button>
+      <button id="btn-run"  class="mbtn" type="button">RUN</button>
+      <button id="btn-act"  class="mbtn" type="button">E</button>
+      <div id="weapon-switch">
+        <button class="wbtn" data-slot="0" type="button">1 灯</button>
+        <button class="wbtn" data-slot="1" type="button">2 塩</button>
+        <button class="wbtn" data-slot="2" type="button">3 数珠</button>
+      </div>
+    </div>
   </div>
 
   <div id="title" class="screen">
@@ -60,9 +111,16 @@
     <p>夜の学校に忘れ物をして戻ったあなたを、おばけが追ってくる。</p>
     <p>校内に隠された<strong>お札6枚</strong>を集め、玄関の扉に貼って封印せよ。</p>
     <p style="margin-top:24px; font-size:14px; color:#aaa;">
-      移動: WASD　ジャンプ: Space　走る: Shift<br>
-      武器: 1=懐中電灯 / 2=塩 / 3=数珠　使う: 左クリック<br>
-      拾う・封印: E
+      <span class="ctrl-pc">
+        移動: WASD　ジャンプ: Space　走る: Shift<br>
+        武器: 1=懐中電灯 / 2=塩 / 3=数珠　使う: 左クリック<br>
+        拾う・封印: E
+      </span>
+      <span class="ctrl-touch" style="display:none;">
+        左下スティック: 移動　画面右なぞる: 視点<br>
+        FIRE: 武器使用　JUMP: 跳ぶ　RUN: 走る　E: 拾う/封印<br>
+        画面上部の 1/2/3 で武器切替
+      </span>
     </p>
     <button id="start-btn">ゲーム開始</button>
   </div>
