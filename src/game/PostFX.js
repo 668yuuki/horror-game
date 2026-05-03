@@ -1,8 +1,7 @@
-// ポストプロセス: ブルーム + ビネット + フィルムグレイン
+// ポストプロセス: ビネット + フィルムグレイン + 色収差 (Bloom は軽量化のため削除)
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass }     from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass }     from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass }     from 'three/examples/jsm/postprocessing/OutputPass.js';
 
@@ -81,9 +80,6 @@ export class PostFX {
     this.composer.setSize(size.x, size.y);
     this.composer.addPass(new RenderPass(scene, camera));
 
-    this.bloom = new UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.7, 0.5, 0.85);
-    this.composer.addPass(this.bloom);
-
     this.horror = new ShaderPass(HorrorShader);
     this.composer.addPass(this.horror);
 
@@ -94,7 +90,6 @@ export class PostFX {
 
   setSize(w, h) {
     this.composer.setSize(w, h);
-    this.bloom.setSize(w, h);
   }
 
   pulseDamage() { this.damage = 1.0; }

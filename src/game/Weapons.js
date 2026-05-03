@@ -23,7 +23,7 @@ export class WeaponSystem {
     // 懐中電灯（カメラに付ける SpotLight）
     this.flashlight = new THREE.SpotLight(0xfff2cc, 22, 32, Math.PI * 0.26, 0.5, 1.4);
     this.flashlight.castShadow = true;
-    this.flashlight.shadow.mapSize.set(1024, 1024);
+    this.flashlight.shadow.mapSize.set(512, 512);
     this.flashlight.shadow.camera.near = 0.2;
     this.flashlight.shadow.camera.far = 32;
     this.flashlight.shadow.bias = -0.001;
@@ -37,6 +37,11 @@ export class WeaponSystem {
 
     // 飛んでいる塩
     this.saltProjectiles = []; // {mesh, vel, ttl}
+
+    // 毎フレーム使う tmp ベクトル (GC 対策)
+    this._tmpCamPos = new THREE.Vector3();
+    this._tmpCamDir = new THREE.Vector3();
+    this._tmpToGhost = new THREE.Vector3();
   }
 
   setCurrent(idx) {
@@ -57,13 +62,12 @@ export class WeaponSystem {
       // ビームに入っているか判定
       const ghost = this.ghost;
       if (ghost && ghost.alive && !ghost.isSealed()) {
-        const camPos = new THREE.Vector3(); this.camera.getWorldPosition(camPos);
-        const camDir = new THREE.Vector3(); this.camera.getWorldDirection(camDir);
-        const toGhost = ghost.position.clone().sub(camPos);
+        const camPos = this._tmpCamPos; this.camera.getWorldPosition(camPos);
+        const camDir = this._tmpCamDir; this.camera.getWorldDirection(camDir);
+        const toGhost = this._tmpToGhost.copy(ghost.position).sub(camPos);
         const dist = toGhost.length();
         if (dist < 14) {
-          const dir = toGhost.clone().normalize();
-          const cos = dir.dot(camDir);
+          const cos = toGhost.x / dist * camDir.x + toGhost.y / dist * camDir.y + toGhost.z / dist * camDir.z;
           if (cos > Math.cos(Math.PI * 0.18) &&
               !this.collision.isLineBlocked(camPos, ghost.position)) {
             ghost.stun(0.2); // 当てている間ずっと stun を付与
