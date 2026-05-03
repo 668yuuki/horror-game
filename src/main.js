@@ -45,7 +45,7 @@ class Game {
 
     window.addEventListener('resize', () => this._onResize());
     window.addEventListener('click', () => {
-      if (this.running && this.controls && !this.controls.enabled) {
+      if (this.running && this.controls && !this.controls.enabled && !this.controls.touchMode) {
         this.controls.lock();
       }
     });
@@ -99,11 +99,19 @@ class Game {
     this.hud.setOfuda(0, CONFIG.ofuda.total);
     this.hud.setStamina(this.player.stamina, CONFIG.player.maxStamina);
     this.hud.setWeapon(this.weapons.status());
-    this.hud.message('クリックして視点をロック', 3.0);
+    if (this.controls.touchMode) {
+      this.hud.message('画面右をなぞって視点操作', 3.0);
+    } else {
+      this.hud.message('クリックして視点をロック', 3.0);
+    }
 
     this.audio.start();
     this.running = true;
-    this.controls.lock();
+    if (this.controls.touchMode) {
+      this.controls.enabled = true;
+    } else {
+      this.controls.lock();
+    }
     this.clock.start();
     this._tick();
   }
@@ -162,6 +170,7 @@ class Game {
     if (!this.player.alive && this.running && !this.cleared) {
       this.running = false;
       this.controls.unlock();
+      this.controls.enabled = false;
       this.hud.show(false);
       this.screens.showGameOver();
       return;
@@ -219,6 +228,7 @@ class Game {
     setTimeout(() => {
       this.running = false;
       this.controls.unlock();
+      this.controls.enabled = false;
       this.hud.show(false);
       this.screens.showClear();
     }, 1800);
