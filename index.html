@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex,nofollow" />
+<title>つぐみと学校のおばけ</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; color: #eee; font-family: "Yu Gothic", "Meiryo", sans-serif; }
+  #game { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  /* ===== HUD ===== */
+  #hud { position: fixed; inset: 0; pointer-events: none; user-select: none; }
+  #hud .panel { position: absolute; padding: 8px 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; font-size: 14px; }
+  #hp { left: 16px; bottom: 16px; font-size: 24px; letter-spacing: 4px; color: #ff5a5a; }
+  #ofuda { right: 16px; bottom: 16px; }
+  #weapon { left: 50%; bottom: 16px; transform: translateX(-50%); min-width: 180px; text-align: center; }
+  #stamina-wrap { left: 16px; top: 16px; width: 200px; height: 12px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; overflow: hidden; }
+  #stamina { height: 100%; width: 100%; background: linear-gradient(90deg,#7cf,#39c); transition: width 0.1s linear; }
+  #effects { right: 16px; top: 16px; font-size: 12px; }
+  #effects div { background: rgba(0,80,0,0.5); padding: 4px 8px; margin-bottom: 4px; border-radius: 4px; }
+  #crosshair { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; transform: translate(-50%,-50%); background: rgba(255,255,255,0.7); border-radius: 50%; }
+  #message { position: absolute; left: 50%; top: 60%; transform: translateX(-50%); font-size: 18px; padding: 8px 16px; background: rgba(0,0,0,0.6); border-radius: 4px; opacity: 0; transition: opacity 0.3s; }
+  #message.show { opacity: 1; }
+  #damage-flash { position: absolute; inset: 0; background: radial-gradient(circle, transparent 40%, rgba(180,0,0,0.6) 100%); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  #damage-flash.show { opacity: 1; }
+  #vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 200px 60px rgba(0,0,0,0.85); }
+
+  /* ===== Screens ===== */
+  .screen { position: fixed; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.92); z-index: 10; text-align: center; padding: 20px; }
+  .screen h1 { font-size: 48px; margin-bottom: 16px; letter-spacing: 8px; }
+  .screen p { font-size: 16px; line-height: 1.8; margin-bottom: 8px; max-width: 600px; }
+  .screen button { margin-top: 24px; padding: 12px 32px; font-size: 18px; background: #600; color: #fff; border: 1px solid #a00; cursor: pointer; letter-spacing: 4px; }
+  .screen button:hover { background: #800; }
+  .hidden { display: none !important; }
+  #title h1 { color: #d44; text-shadow: 0 0 20px rgba(255,0,0,0.5); }
+  #gameover h1 { color: #a00; }
+  #clear h1 { color: #fc8; }
+</style>
+</head>
+<body>
+  <div id="game"></div>
+
+  <div id="hud" class="hidden">
+    <div id="vignette"></div>
+    <div id="damage-flash"></div>
+    <div id="crosshair"></div>
+    <div id="hp" class="panel">♥♥♥</div>
+    <div id="ofuda" class="panel">お札 0 / 6</div>
+    <div id="weapon" class="panel">[1] 懐中電灯</div>
+    <div id="stamina-wrap" class="panel"><div id="stamina"></div></div>
+    <div id="effects"></div>
+    <div id="message"></div>
+  </div>
+
+  <div id="title" class="screen">
+    <h1>つぐみと学校のおばけ</h1>
+    <p>夜の学校に忘れ物をして戻ったあなたを、おばけが追ってくる。</p>
+    <p>校内に隠された<strong>お札6枚</strong>を集め、玄関の扉に貼って封印せよ。</p>
+    <p style="margin-top:24px; font-size:14px; color:#aaa;">
+      移動: WASD　ジャンプ: Space　走る: Shift<br>
+      武器: 1=懐中電灯 / 2=塩 / 3=数珠　使う: 左クリック<br>
+      拾う・封印: E
+    </p>
+    <button id="start-btn">ゲーム開始</button>
+  </div>
+
+  <div id="gameover" class="screen hidden">
+    <h1>YOU DIED</h1>
+    <p>つぐみはおばけに連れ去られた…</p>
+    <button id="retry-btn">もう一度</button>
+  </div>
+
+  <div id="clear" class="screen hidden">
+    <h1>ESCAPED</h1>
+    <p>お札6枚で扉を封印し、つぐみは学校から脱出した。</p>
+    <button id="clear-btn">タイトルへ</button>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
