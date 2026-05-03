@@ -16,11 +16,11 @@ class Game {
   constructor() {
     this.container = document.getElementById('game');
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setClearColor(0x000000);
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.15;

@@ -50,8 +50,9 @@ export class Ghost {
       color: 0x050505, transparent: true, opacity: 0.95, roughness: 1.0
     });
     this.hairs = [];
-    for (let i = 0; i < 32; i++) {
-      const a = (i / 32) * Math.PI * 2;
+    const HAIR_COUNT = 20;
+    for (let i = 0; i < HAIR_COUNT; i++) {
+      const a = (i / HAIR_COUNT) * Math.PI * 2;
       // 顔の前側は髪を集中させる
       const front = Math.cos(a) > 0 ? 1 : 0;
       const len = 1.1 + Math.random() * 0.6 + front * 0.3;

@@ -247,11 +247,10 @@ export class World {
           desk.position.set(cx - 2 + i * 2, 0.75, 6 + j * 1.6);
           desk.castShadow = true; desk.receiveShadow = true;
           parent.add(desk);
-          // 脚
+          // 脚 (細いので shadow 不要)
           for (const [dx, dz] of [[-0.45,-0.25],[0.45,-0.25],[-0.45,0.25],[0.45,0.25]]) {
             const leg = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.75, 0.06), this.mat.desk);
             leg.position.set(desk.position.x + dx, 0.375, desk.position.z + dz);
-            leg.castShadow = true;
             parent.add(leg);
           }
           this.collision.addFromMesh(desk);
@@ -327,9 +326,18 @@ export class World {
     // 全体的に底上げ（不気味さは保ちつつ視認性UP）
     const amb = new THREE.AmbientLight(0x2a3040, 0.7);
     this.scene.add(amb);
-    // 月明かり
+    // 月明かり (全体の落ち影をこの1灯に集約)
     const moon = new THREE.DirectionalLight(0x99aadd, 0.5);
     moon.position.set(20, 30, -20);
+    moon.castShadow = true;
+    moon.shadow.mapSize.set(1024, 1024);
+    moon.shadow.camera.left = -30;
+    moon.shadow.camera.right = 30;
+    moon.shadow.camera.top = 30;
+    moon.shadow.camera.bottom = -30;
+    moon.shadow.camera.near = 1;
+    moon.shadow.camera.far = 80;
+    moon.shadow.bias = -0.001;
     this.scene.add(moon);
 
     // 蛍光灯
@@ -343,20 +351,17 @@ export class World {
       const lamp = new THREE.Mesh(
         new THREE.BoxGeometry(1.2, 0.06, 0.25),
         new THREE.MeshStandardMaterial({
-          color: 0xffeebb, emissive: 0xffeebb, emissiveIntensity: 2.0
+          color: 0xffeebb, emissive: 0xffeebb, emissiveIntensity: 2.6
         })
       );
       lamp.position.set(x, y + 0.2, z);
       this.scene.add(lamp);
 
       // 範囲を 14 → 26、強度 0.8 → 1.6 に
+      // shadow は moon に集約 (PointLight のキューブシャドウは重い)
       const l = new THREE.PointLight(0xffeeaa, 1.6, 26, 1.6);
       l.position.set(x, y, z);
-      l.castShadow = true;
-      l.shadow.mapSize.set(256, 256);
-      l.shadow.camera.near = 0.5;
-      l.shadow.camera.far = 26;
-      l.shadow.bias = -0.005;
+      l.castShadow = false;
       this.scene.add(l);
       this.lights.push({
         light: l, lamp, base: 1.6,
