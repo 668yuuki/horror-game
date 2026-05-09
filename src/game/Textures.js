@@ -1,6 +1,7 @@
 // Canvas で PBR っぽいテクスチャをプロシージャル生成
 // (color + roughness + normal を返す)
 import * as THREE from 'three';
+import { QUALITY } from '../config.js';
 
 function makeCanvas(size = 512) {
   const c = document.createElement('canvas');
@@ -76,6 +77,7 @@ export function woodTextures(repeat = [4, 4]) {
   map.wrapS = map.wrapT = THREE.RepeatWrapping;
   map.repeat.set(...repeat);
   map.colorSpace = THREE.SRGBColorSpace;
+  if (!QUALITY.generateNormalMaps) return { map };
   const normal = colorToNormal(c, 4);
   normal.wrapS = normal.wrapT = THREE.RepeatWrapping;
   normal.repeat.set(...repeat);
@@ -109,6 +111,7 @@ export function plasterTextures(repeat = [4, 2]) {
   map.wrapS = map.wrapT = THREE.RepeatWrapping;
   map.repeat.set(...repeat);
   map.colorSpace = THREE.SRGBColorSpace;
+  if (!QUALITY.generateNormalMaps) return { map };
   const normal = colorToNormal(c, 1.5);
   normal.wrapS = normal.wrapT = THREE.RepeatWrapping;
   normal.repeat.set(...repeat);
@@ -145,6 +148,7 @@ export function concreteTextures(repeat = [6, 6]) {
   map.wrapS = map.wrapT = THREE.RepeatWrapping;
   map.repeat.set(...repeat);
   map.colorSpace = THREE.SRGBColorSpace;
+  if (!QUALITY.generateNormalMaps) return { map };
   const normal = colorToNormal(c, 2);
   normal.wrapS = normal.wrapT = THREE.RepeatWrapping;
   normal.repeat.set(...repeat);

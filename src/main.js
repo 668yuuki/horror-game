@@ -1,6 +1,6 @@
 // エントリポイント: シーン構築・ゲームループ
 import * as THREE from 'three';
-import { CONFIG } from './config.js';
+import { CONFIG, QUALITY } from './config.js';
 import { World } from './game/World.js';
 import { Controls } from './game/Controls.js';
 import { Player } from './game/Player.js';
@@ -16,7 +16,7 @@ class Game {
   constructor() {
     this.container = document.getElementById('game');
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, QUALITY.pixelRatioCap));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setClearColor(0x000000);
     this.renderer.shadowMap.enabled = true;
@@ -28,7 +28,7 @@ class Game {
 
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0x0a0c14, 0.035);
-    this.camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.05, 80);
+    this.camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.05, QUALITY.cameraFar);
     this.scene.add(this.camera);
 
     this.clock = new THREE.Clock();

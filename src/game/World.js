@@ -1,6 +1,7 @@
 // 校舎の1階レイアウトを生成（リアル寄り）
 import * as THREE from 'three';
 import { CollisionWorld } from './Collision.js';
+import { QUALITY } from '../config.js';
 import {
   woodTextures, plasterTextures, concreteTextures, metalTextures,
   ceilingTextures, blackboardTexture
@@ -330,7 +331,7 @@ export class World {
     const moon = new THREE.DirectionalLight(0x99aadd, 0.5);
     moon.position.set(20, 30, -20);
     moon.castShadow = true;
-    moon.shadow.mapSize.set(1024, 1024);
+    moon.shadow.mapSize.set(QUALITY.shadowMapSize, QUALITY.shadowMapSize);
     moon.shadow.camera.left = -30;
     moon.shadow.camera.right = 30;
     moon.shadow.camera.top = 30;
@@ -365,13 +366,14 @@ export class World {
       this.scene.add(l);
       this.lights.push({
         light: l, lamp, base: 1.6,
-        flicker: Math.random() < 0.3, // ちらつくのは少なめに
+        flicker: QUALITY.pointLightFlicker && Math.random() < 0.3, // ちらつくのは少なめに
         seed: Math.random() * 10
       });
     }
   }
 
   update(dt, time) {
+    if (!QUALITY.pointLightFlicker) return;
     for (const e of this.lights) {
       if (!e.flicker) continue;
       const f = 0.7 + Math.sin(time * 12 + e.seed * 7) * 0.18
