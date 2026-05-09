@@ -3,7 +3,7 @@
 // 経路探索は壁衝突を避けながら直接プレイヤーに向かう steering と、
 // パトロール用の固定 waypoint 列を使う（プロトタイプとして十分）
 import * as THREE from 'three';
-import { CONFIG } from '../config.js';
+import { CONFIG, QUALITY } from '../config.js';
 
 export class Ghost {
   /**
@@ -50,7 +50,7 @@ export class Ghost {
       color: 0x050505, transparent: true, opacity: 0.95, roughness: 1.0
     });
     this.hairs = [];
-    const HAIR_COUNT = 20;
+    const HAIR_COUNT = QUALITY.hairCount;
     for (let i = 0; i < HAIR_COUNT; i++) {
       const a = (i / HAIR_COUNT) * Math.PI * 2;
       // 顔の前側は髪を集中させる
@@ -320,9 +320,11 @@ export class Ghost {
     }
     // 追跡中は体がブルブル震える
     if (chasing) {
-      const j = 0.015;
-      this.mesh.position.x += (Math.random() - 0.5) * j;
-      this.mesh.position.z += (Math.random() - 0.5) * j;
+      if (QUALITY.ghostJitter) {
+        const j = 0.015;
+        this.mesh.position.x += (Math.random() - 0.5) * j;
+        this.mesh.position.z += (Math.random() - 0.5) * j;
+      }
       // 腕をプレイヤー方向に伸ばす
       if (this.armL && this.armR) {
         this.armL.rotation.x = -Math.PI * 0.45;

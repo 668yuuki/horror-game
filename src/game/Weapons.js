@@ -1,6 +1,6 @@
 // 武器3種: 懐中電灯 / 塩 / 数珠
 import * as THREE from 'three';
-import { CONFIG } from '../config.js';
+import { CONFIG, QUALITY } from '../config.js';
 
 export class WeaponSystem {
   /**
@@ -22,11 +22,13 @@ export class WeaponSystem {
 
     // 懐中電灯（カメラに付ける SpotLight）
     this.flashlight = new THREE.SpotLight(0xfff2cc, 22, 32, Math.PI * 0.26, 0.5, 1.4);
-    this.flashlight.castShadow = true;
-    this.flashlight.shadow.mapSize.set(512, 512);
-    this.flashlight.shadow.camera.near = 0.2;
-    this.flashlight.shadow.camera.far = 32;
-    this.flashlight.shadow.bias = -0.001;
+    this.flashlight.castShadow = QUALITY.flashlightShadow;
+    if (QUALITY.flashlightShadow) {
+      this.flashlight.shadow.mapSize.set(512, 512);
+      this.flashlight.shadow.camera.near = 0.2;
+      this.flashlight.shadow.camera.far = 32;
+      this.flashlight.shadow.bias = -0.001;
+    }
     this.flashlight.position.set(0, 0, 0);
     this.flashTarget = new THREE.Object3D();
     camera.add(this.flashlight);

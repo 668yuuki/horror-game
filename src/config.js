@@ -1,3 +1,21 @@
+// 品質プリセット (端末ごとの軽量化)
+const _isTouch = typeof window !== 'undefined' &&
+  (('ontouchstart' in window) ||
+   (window.matchMedia && window.matchMedia('(pointer: coarse)').matches));
+
+export const QUALITY = {
+  isMobile: _isTouch,
+  pixelRatioCap: _isTouch ? 1.0 : 1.25,
+  postFX: !_isTouch,
+  shadowMapSize: _isTouch ? 512 : 1024,
+  flashlightShadow: !_isTouch,
+  pointLightFlicker: !_isTouch,
+  ghostJitter: !_isTouch,
+  generateNormalMaps: !_isTouch,
+  hairCount: _isTouch ? 12 : 20,
+  cameraFar: _isTouch ? 60 : 80,
+};
+
 // ゲーム全体の定数
 export const CONFIG = {
   player: {

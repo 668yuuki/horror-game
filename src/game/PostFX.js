@@ -4,6 +4,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass }     from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass }     from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass }     from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { QUALITY }        from '../config.js';
 
 const HorrorShader = {
   uniforms: {
@@ -74,6 +75,10 @@ export class PostFX {
     this.renderer = renderer;
     this.scene = scene;
     this.camera = camera;
+    this.lite = !QUALITY.postFX;
+    this.damage = 0;
+
+    if (this.lite) return;
 
     const size = renderer.getSize(new THREE.Vector2());
     this.composer = new EffectComposer(renderer);
@@ -84,17 +89,20 @@ export class PostFX {
     this.composer.addPass(this.horror);
 
     this.composer.addPass(new OutputPass());
-
-    this.damage = 0;
   }
 
   setSize(w, h) {
+    if (this.lite) return;
     this.composer.setSize(w, h);
   }
 
   pulseDamage() { this.damage = 1.0; }
 
   render(dt, time) {
+    if (this.lite) {
+      this.renderer.render(this.scene, this.camera);
+      return;
+    }
     this.horror.uniforms.uTime.value = time;
     this.damage = Math.max(0, this.damage - dt * 1.8);
     this.horror.uniforms.uDamage.value = this.damage;
